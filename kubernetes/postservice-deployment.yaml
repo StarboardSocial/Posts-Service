@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  postservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postservice
+  template:
+    metadata:
+      labels:
+        app: postservice
+    spec:
+      volumes:
+        - name: postservice-db-ps
+          persistentVolumeClaim:
+            claimName: postservice-db-volumeclaim
+      containers:
+        - image:  registry.starboardsocial.nl/postservice:prod
+          imagePullPolicy: Always
+          name:  postservice
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "200Mi"
+              cpu: "200m"
+          ports:
+            - containerPort: 9001
+          envFrom:
+            - configMapRef:
+                name: postservice-config
+                
+        - image: mongo:latest
+          name: postservice-database
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "100m"
+            limits:
+              memory: "1000Mi"
+              cpu: "200m"
+          volumeMounts:
+            - name: postservice-db-ps
+              mountPath: /data/db
+          ports:
+            - containerPort: 27017
+          envFrom:
+            - configMapRef:
+                name: postservice-config
+      imagePullSecrets:
+        - name: starboard-registry
