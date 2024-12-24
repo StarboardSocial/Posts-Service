@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MongoDB.Driver;
 using RabbitMQ.Client;
@@ -53,6 +55,11 @@ try
     Console.WriteLine("Error connecting to RabbitMQ");
     Console.WriteLine(e.Message);
 }
+
+// Blob Storage
+BlobContainerClient blobServiceClient =
+    new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")).GetBlobContainerClient("post-images");
+builder.Services.AddSingleton(blobServiceClient);
 
 // Database
 IMongoClient mongoClient = new MongoClient(builder.Configuration.GetConnectionString("MongoDB")!);

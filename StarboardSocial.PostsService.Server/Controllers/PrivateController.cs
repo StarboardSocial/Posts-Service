@@ -60,7 +60,12 @@ public class PrivateController(IPrivateService privateService) : ControllerBase
                 UserId = userId,
                 Title = postCreateViewModel.Title,
                 Description = postCreateViewModel.Description,
-                ImageUrl = postCreateViewModel.ImageUrl,
+                Image = new()
+                {
+                    Id = Guid.NewGuid(),
+                    Image = new MemoryStream(Convert.FromBase64String(postCreateViewModel.ImageBase64)),
+                    ImageExtension = postCreateViewModel.ImageExtension
+                },
                 PostedAt = DateTimeOffset.Now
             };
             Result<Post> result = await _privateService.CreatePost(post);
@@ -73,7 +78,7 @@ public class PrivateController(IPrivateService privateService) : ControllerBase
         }
     }
     
-    [HttpPut]
+    /*[HttpPut]
     [Route("{postId}")]
     public async Task<IActionResult> UpdatePost([FromRoute] string postId, [FromBody] PostEditViewModel postEditViewModel)
     {
@@ -98,7 +103,7 @@ public class PrivateController(IPrivateService privateService) : ControllerBase
             return Unauthorized(e.Message);
         }
         
-    }
+    }*/
     
     [HttpDelete]
     [Route("{postId}")]

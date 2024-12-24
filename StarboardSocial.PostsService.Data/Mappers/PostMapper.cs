@@ -7,13 +7,26 @@ public static class PostMapper
 {
     public static Post ToPost(this PostEntity postEntity)
     {
+        Guid? imageId = null;
+        try
+        {
+            imageId = Guid.Parse(postEntity.ImageUrl.Split("/").Last().Split(".").First());    
+        } catch (Exception e)
+        {
+            imageId = Guid.NewGuid();
+        }
+        
         return new Post
         {
             Id = Guid.Parse(postEntity.Id),
             UserId = postEntity.UserId,
             Title = postEntity.Title,
             Description = postEntity.Description,
-            ImageUrl = postEntity.ImageUrl,
+            Image = new()
+            {
+                Id = imageId!.Value,
+                Url =  postEntity.ImageUrl
+            },
             PostedAt = postEntity.PostedAt
         };
     }
@@ -26,7 +39,7 @@ public static class PostMapper
             UserId = post.UserId,
             Title = post.Title,
             Description = post.Description,
-            ImageUrl = post.ImageUrl,
+            ImageUrl = post.Image.Url!,
             PostedAt = post.PostedAt
         };
     }
